@@ -1,3 +1,16 @@
 #wc-wc_baerscrest_payment_processor-cc-form input {
 	width: 100%;
 }
+
+#wc-wc_baerscrest_payment_processor-cc-form .baerscrest-last-row {
+    display: flex;
+    width: 100%;
+}
+
+#add_payment_method #payment div.form-row, .woocommerce-cart #payment div.form-row, .woocommerce-checkout #payment div.form-row {
+	padding: 0;
+}
+
+#wc-wc_baerscrest_payment_processor-cc-form .baerscrest-last-row .form-col-left {
+	padding-right: 10px;
+}

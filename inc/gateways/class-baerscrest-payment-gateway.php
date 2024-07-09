@@ -60,20 +60,19 @@ class Baerscrest_Payment_Gateway extends \WC_Payment_Gateway {
 			return;
 		}
 
-		wp_register_script(
-			$this->id . '-mask',
-			WC_BAERSCREST_PAYMENT_PROCESSOR_PLUGIN_URL . 'assets/js/mask.js',
+		wp_enqueue_script(
+			$this->id,
+			WC_BAERSCREST_PAYMENT_PROCESSOR_PLUGIN_URL . 'assets/js/payment-processor.js',
 			array( 'jquery' ),
 			WC_BAERSCREST_PAYMENT_PROCESSOR_VERSION,
 			true
 		);
 
-		wp_enqueue_script(
+		wp_enqueue_style(
 			$this->id,
-			WC_BAERSCREST_PAYMENT_PROCESSOR_PLUGIN_URL . 'assets/js/payment-processor.js',
-			array( $this->id . '-mask' ),
-			WC_BAERSCREST_PAYMENT_PROCESSOR_VERSION,
-			true
+			WC_BAERSCREST_PAYMENT_PROCESSOR_PLUGIN_URL . 'assets/css/payment-processor.css',
+			array(),
+			WC_BAERSCREST_PAYMENT_PROCESSOR_VERSION
 		);
 	}
 
@@ -237,10 +236,11 @@ class Baerscrest_Payment_Gateway extends \WC_Payment_Gateway {
 		}
 
 		$response = $this->get_api_endpoint_response( $order, $cc_number, $exp_month, $exp_year, $cc_cvc );
+		// echo '<pre>' . print_r( wp_remote_retrieve_response_code( $response ), true ) . '</pre>'; die;
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$body          = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( ! is_wp_error( $response ) ) {
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
+		if ( ! is_wp_error( $response ) && 200 <= $response_code && $response_code <= 299 ) {
 			// echo '<pre>' . print_r(  $body, true ) . '</pre>'; die;
 			// it could be different depending on your payment processor.
 			if ( 'declined' !== $body['status'] ) {
@@ -276,7 +276,15 @@ class Baerscrest_Payment_Gateway extends \WC_Payment_Gateway {
 			}
 		} else {
 			// translators: %s - Error message.
-			wc_add_notice( sprintf( __( 'Gateway error: %s', 'woocommerce-baerscrest-payment-processor' ), $response->get_error_message() ), 'error' );
+			wc_add_notice(
+				sprintf(
+					__( 'Gateway error: %s',
+					'woocommerce-baerscrest-payment-processor'
+				),
+				is_wp_error( $response ) ? $response->get_error_message() : $body['message']
+				),
+				'error'
+			);
 			return;
 		}
 	}
@@ -418,7 +426,6 @@ class Baerscrest_Payment_Gateway extends \WC_Payment_Gateway {
 		$endpoint_url = $this->sandbox_enabled ? $this->sandbox_url : $this->live_url;
 
 		$response = wp_remote_post( sanitize_url( trailingslashit( $endpoint_url . 'payment' ) ), $args );
-		echo '<pre>' . print_r( $response, true ) . '</pre>'; die;
 
 		return $response;
 	}
