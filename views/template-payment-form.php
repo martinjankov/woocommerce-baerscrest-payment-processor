@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="form-row form-row-last">
 		<div class="form-col-left">
 			<label for="wcbpp_expiration_date"><?php echo esc_html_e( 'Expiration Date', 'woocommerce-baerscrest-payment-processor' ); ?> <span class="required">*</span></label>
-			<input id="wcbpp_expiration_date" class="input-text" type="text" autocomplete="off" name="baerscrest_cc_exp_date"/>
+			<input id="wcbpp_expiration_date" class="input-text" type="tel" autocomplete="off" name="baerscrest_cc_exp_date" placeholder="MM / YY"/>
 		</div>
 		<div class="form-col-right">
 			<label for="wcbpp_cvv"><?php echo esc_html_e( 'CVC', 'woocommerce-baerscrest-payment-processor' ); ?> <span class="required">*</span></label>
